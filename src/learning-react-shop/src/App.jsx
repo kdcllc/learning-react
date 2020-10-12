@@ -1,11 +1,11 @@
 import React from "react";
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import { useState } from "react";
 import "./App.css";
 import Footer from "./Footer";
 import Header from "./Header";
-import { getProducts } from './services/productService';
-import Spinner from './Spinner';
+import { getProducts } from "./services/productService";
+import Spinner from "./Spinner";
 
 export default function App() {
   const [size, setSize] = useState("");
@@ -13,11 +13,18 @@ export default function App() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() =>{
-    getProducts("shoes")
-      .then((response) => setProducts(response))
-      .catch((e) => setError(e))
-      .finally(() => setLoading(false));
+  useEffect(() => {
+    async function init() {
+      try {
+        const response = await  getProducts("shoes");
+        setProducts(response)
+      } catch (e) {
+        setError(e)
+      } finally{
+        setLoading(false);
+      }
+    }
+    init();
   }, []);
 
   function rednderProduct(p) {
@@ -35,8 +42,8 @@ export default function App() {
     ? products.filter((p) => p.skus.find((s) => s.size === parseInt(size)))
     : products;
 
-  if (error) throw error
-  if(loading) return <Spinner/>;
+  if (error) throw error;
+  if (loading) return <Spinner />;
 
   return (
     <>
@@ -57,7 +64,9 @@ export default function App() {
             </select>
             {size && <h2> Found {filteredProducts.length} items</h2>}
           </section>
-          <section id='products'>{filteredProducts.map(rednderProduct)}</section>
+          <section id='products'>
+            {filteredProducts.map(rednderProduct)}
+          </section>
         </main>
       </div>
       <Footer />
